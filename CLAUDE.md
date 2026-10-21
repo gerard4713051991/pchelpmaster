@@ -32,7 +32,7 @@ Delivery plan: after the first release the app ships as ONE Docker container (An
 - Implement lazy loading for feature routes
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
 - Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
+    - `NgOptimizedImage` does not work for inline base64 images.
 
 ## Accessibility Requirements
 

@@ -5,8 +5,10 @@ const { PB_SUPERUSER_EMAIL: email, PB_SUPERUSER_PASSWORD: password } = process.e
 const dir = process.env.PB_DIR || 'pocketbase/pb_data';
 
 if (!email || !password) {
-  console.error('PB_SUPERUSER_EMAIL and PB_SUPERUSER_PASSWORD must be set (see .env.example)');
-  process.exit(1);
+    console.error('PB_SUPERUSER_EMAIL and PB_SUPERUSER_PASSWORD must be set (see .env.example)');
+    process.exit(1);
 }
 
-execFileSync('pocketbase', ['superuser', 'upsert', email, password, '--dir', dir], { stdio: 'inherit' });
+execFileSync('pocketbase', ['superuser', 'upsert', email, password, '--dir', dir], {
+    stdio: 'inherit',
+});
