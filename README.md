@@ -54,6 +54,32 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## PocketBase
+
+The backend is [PocketBase](https://pocketbase.io/) (v0.40.x). The `pocketbase` binary must be in `PATH`.
+
+- `pocketbase/pb_migrations/` — collection schema as JS migrations (committed).
+- `pocketbase/pb_data/` — local dev database (not committed).
+
+Local development:
+
+```bash
+cp .env.example .env    # then set PB_SUPERUSER_EMAIL / PB_SUPERUSER_PASSWORD
+pnpm pb:superuser       # create the superuser or reset its password (safe to re-run)
+pnpm pb:serve           # http://127.0.0.1:8090, admin UI at /_/
+```
+
+Migrations are applied on `pb:serve` start (or explicitly with `pnpm pb:migrate`). Schema changes made in the dev admin UI are written to `pocketbase/pb_migrations/` automatically — commit them.
+
+Production uses the same binary version and the same `pb_migrations/`, with its own data dir:
+
+```bash
+pocketbase serve --dir /path/to/pb_data --migrationsDir pocketbase/pb_migrations --automigrate=false --http 127.0.0.1:8090
+PB_DIR=/path/to/pb_data node --env-file=.env scripts/pb-superuser.mjs
+```
+
+Back up by copying the `pb_data` directory.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

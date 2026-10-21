@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:pchelpcrm": "node dist/pchelpcrm/server/server.mjs"
+    "serve:ssr:pchelpcrm": "node dist/pchelpcrm/server/server.mjs",
+    "pb:serve": "pocketbase serve --dir pocketbase/pb_data --migrationsDir pocketbase/pb_migrations --dev",
+    "pb:superuser": "node --env-file=.env scripts/pb-superuser.mjs",
+    "pb:migrate": "pocketbase migrate up --dir pocketbase/pb_data --migrationsDir pocketbase/pb_migrations"
   },
   "private": true,
   "dependencies": {
@@ -20,6 +23,7 @@
     "@angular/router": "^22.2.0",
     "@angular/ssr": "^22.2.3",
     "express": "^5.1.0",
+    "pocketbase": "^0.28.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
