@@ -1,5 +1,22 @@
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Project Overview
+
+Pchelpcrm is a CRM for handling service requests (orders) of a private service professional: computer help, home repairs, furniture assembly, plumbing, electrical work, etc. The domain is deliberately generic: any "client calls, a job gets done" business fits. Currently used personally by the author, so keep it simple.
+
+Domain entities:
+
+- **User** — the owner of the personal account who works in the CRM (a PocketBase auth record). Everything below belongs to a user and must be isolated per user (API rules).
+- **Client** — a customer of the user. A separate entity, not a user.
+- **Request** — a service request (order). Belongs to exactly one client; one client can have many requests.
+- **Category** — a request category. Dynamic: created and edited by the user, never hardcoded in code or enums.
+
+Auth: PocketBase auth collection, login by email + password.
+
+Stack: Angular (see rules below) + PocketBase (`pocketbase/pb_migrations/` holds the schema) + pnpm. Add other libraries (e.g. a UI component library) only when really needed.
+
+Delivery plan: after the first release the app ships as ONE Docker container (Angular app + PocketBase together, no docker-compose) deployable to a production server. Do not design anything that requires multiple containers.
+
 ## TypeScript Best Practices
 
 - Use strict type checking

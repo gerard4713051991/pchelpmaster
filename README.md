@@ -1,6 +1,23 @@
 # Pchelpcrm
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.3.
+A CRM for handling service requests (orders) of a private service professional: computer help, home repairs, furniture assembly, plumbing, electrical work and similar jobs. The domain is generic, so any business where a client asks for a job to be done fits.
+
+## Concepts
+
+- **User** — the account owner who works in the CRM. Signs in with email and password (PocketBase auth). Data of each user is isolated from others.
+- **Client** — a customer of the user.
+- **Request** — a service request (order). Belongs to one client; a client can have many requests.
+- **Category** — a request category. Dynamic: created and edited by the user.
+
+## Stack
+
+- [Angular](https://angular.dev/) — frontend, generated with [Angular CLI](https://github.com/angular/angular-cli) 22.2.3
+- [PocketBase](https://pocketbase.io/) — backend, database and authentication
+- [pnpm](https://pnpm.io/) — package manager
+
+## Distribution
+
+After the first release the application will be shipped as a single Docker container (the app and PocketBase together, no docker-compose) that can be deployed to a production server.
 
 ## Development server
 
