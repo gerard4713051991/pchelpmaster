@@ -75,6 +75,11 @@ Delivery plan: after the first release the app ships as ONE Docker container (An
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
 
+## Routing
+
+- All routes are lazy loaded (`loadComponent` / `loadChildren`), including feature-internal ones
+- All routes render as a plain client-side SPA (`RenderMode.Client` in `app.routes.server.ts`). Do NOT use SSR or prerender by default; enable them only for specific routes the user explicitly asks for
+
 ## Project Structure
 
 - Organize code by feature, not by file type: `src/app/<feature>/` (e.g. `src/app/clients/`), not global `components/`, `services/`, `pipes/` folders
