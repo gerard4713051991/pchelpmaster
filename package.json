@@ -7,6 +7,8 @@
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
         "serve:ssr:pchelpcrm": "node dist/pchelpcrm/server/server.mjs",
         "pb:serve": "pocketbase serve --dir pocketbase/pb_data --migrationsDir pocketbase/pb_migrations --dev",
         "pb:superuser": "node --env-file=.env scripts/pb-superuser.mjs",
@@ -31,11 +33,15 @@
         "@angular/build": "^22.2.3",
         "@angular/cli": "^22.2.3",
         "@angular/compiler-cli": "^22.2.0",
+        "@eslint/js": "^10.0.1",
         "@types/express": "^5.0.1",
         "@types/node": "^22.12.0",
+        "angular-eslint": "^22.6.0",
+        "eslint": "^10.13.0",
         "jsdom": "^30.0.0",
         "prettier": "^3.8.1",
         "typescript": "~6.0.2",
+        "typescript-eslint": "^8.72.0",
         "vitest": "^5.0.0"
     }
 }
