@@ -92,7 +92,8 @@ Delivery plan: after the first release the app ships as ONE Docker container (An
 - Follow GitHub Flow: there is NO separate `develop` branch. `main` is the only long-lived branch
 - Create every working branch directly from the latest `main`: features, fixes and release preparation alike
 - Name branches by purpose in kebab-case: `feat/<short-name>`, `fix/<short-name>`, `release/<version>`
-- At the start of each new session / new task, create a new branch from `main` with a name matching the task (`feat/...`, `fix/...`, `release/...`) before making any changes
-- Do NOT commit on your own: make a commit only when the user explicitly asks for it, because the user reviews changes before every commit. When asked, commit only to that branch (Conventional Commits)
+- Do NOT create branches on your own: the user creates a branch (named as above) when a task is large (a feature, many related changes). Otherwise work in the current branch
+- Small point corrections (config tweaks, adding a dependency, minor fixes) need no separate branch: they go straight to the current branch, usually `main`, as a normal Conventional Commit
+- Do NOT commit on your own: make a commit only when the user explicitly asks for it, because the user reviews changes before every commit. When asked, commit only to the current branch (Conventional Commits)
 - Do NOT merge, rebase onto `main`, push, or delete branches: merging and cleaning up branches is done by the user
 - There are no pull requests: the user works with a local repository only
