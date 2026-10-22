@@ -19,7 +19,9 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
-.claude/
+
+# Claude Code (personal settings only, the rest of .claude/ is tracked)
+.claude/settings.local.json
 
 # Visual Studio Code
 .vscode/*

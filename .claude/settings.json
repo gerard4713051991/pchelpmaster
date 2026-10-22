@@ -1,0 +1,27 @@
+{
+    "permissions": {
+        "allow": [
+            "mcp__angular-cli__list_projects",
+            "mcp__angular-cli__get_best_practices",
+            "Bash(git switch *)"
+        ]
+    },
+    "enabledMcpjsonServers": ["angular-cli"],
+    "enabledPlugins": {
+        "frontend-design@anthropic-plugin-directory": true
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-format-file.sh\" \"$(jq -r '.tool_response.filePath // .tool_input.file_path')\"",
+                        "statusMessage": "ESLint --fix + Prettier..."
+                    }
+                ]
+            }
+        ]
+    }
+}
