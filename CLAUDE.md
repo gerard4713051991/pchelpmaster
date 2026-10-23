@@ -39,6 +39,13 @@ Delivery plan: after the first release the app ships as ONE Docker container (An
 - It MUST pass all AXE checks.
 - It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
 
+## UI / Visual Design
+
+- All visual and frontend work (layout, styling, components' look, colors, typography, responsive behavior) MUST be done using the skills `ui-ux-pro-max` and `frontend-design` (`frontend-design:frontend-design`)
+- Invoke both skills via the Skill tool before building or reshaping any UI
+- Always get feedback from the real browser via the Playwright MCP (`mcp__playwright__*`): use it during UI development and to verify every visual/frontend change (snapshot, screenshot, console messages, responsive sizes via `browser_resize`)
+- Skill recommendations must not violate the Accessibility Requirements and the Angular rules of this file; on conflict, this file wins
+
 ## Components
 
 - Keep components small and focused on a single responsibility
