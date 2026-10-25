@@ -18,11 +18,11 @@ export default defineConfig([
         rules: {
             '@angular-eslint/directive-selector': [
                 'error',
-                { type: 'attribute', prefix: 'app', style: 'camelCase' },
+                { type: 'attribute', prefix: 'ksk', style: 'camelCase' },
             ],
             '@angular-eslint/component-selector': [
                 'error',
-                { type: 'element', prefix: 'app', style: 'kebab-case' },
+                { type: 'element', prefix: 'ksk', style: 'kebab-case' },
             ],
         },
     },

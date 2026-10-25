@@ -7,7 +7,7 @@
 ```
                     ┌─ location /pb/ ─(префикс /pb срезается)─► PocketBase :8090
 Браузер ──► nginx ──┤                                                ▲
-                    └─ location /  ──► Node SSR-сервер :4200 ────────┘
+                    └─ location /  ──► Node SSR-сервер :4000 ────────┘
                                        (src/server.ts)     PB_URL — напрямую, без nginx
 ```
 
