@@ -1,111 +1,149 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+You are an expert in TypeScript, Angular, and PocketBase. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
-## Project Overview
+## Project
 
-Pchelpcrm is a CRM for handling service requests (orders) of a private service professional: computer help, home repairs, furniture assembly, plumbing, electrical work, etc. The domain is deliberately generic: any "client calls, a job gets done" business fits. Currently used personally by the author, so keep it simple.
+Pchelpcrm is a multi-user CRM for private service professionals: clients, orders, tags, and a public link to an order. Angular 22 with SSR + PocketBase 0.40 + pnpm. The description, commands, and repository structure are in `README.md`. Keep solutions simple.
 
-Domain entities:
+## Before you start
 
-- **User** — the owner of the personal account who works in the CRM (a PocketBase auth record). Everything below belongs to a user and must be isolated per user (API rules).
-- **Client** — a customer of the user. A separate entity, not a user.
-- **Request** — a service request (order). Belongs to exactly one client; one client can have many requests.
-- **Category** — a request category. Dynamic: created and edited by the user, never hardcoded in code or enums.
+Read:
 
-Auth: PocketBase auth collection, login by email + password.
+1. `docs/architecture.md` — layers, DI, SSR, security, UI principles;
+2. `docs/data-model.md` — collections, fields, access rules;
+3. `docs/testing.md` — how tests are written;
+4. the page `docs/guide/<app part>.md` for the part you are changing, if it already exists (table of contents — `docs/README.md`).
 
-Stack: Angular (see rules below) + PocketBase (`pocketbase/pb_migrations/` holds the schema) + pnpm. Add other libraries (e.g. a UI component library) only when really needed.
+## How to work
 
-Delivery plan: after the first release the app ships as ONE Docker container (Angular app + PocketBase together, no docker-compose) deployable to a production server. Do not design anything that requires multiple containers.
+- Develop with TDD: tests first, then the implementation.
+- If a task contains a "Forbidden" section ("Запрещено"), obey it.
+- If a solution diverges from `docs/architecture.md` or `docs/data-model.md`, stop and discuss the document change with the user.
+- Before finishing, run `pnpm lint` and all existing test suites (`pnpm test`, `pnpm test:api`, `pnpm test:integration`, `pnpm e2e` — those already set up).
+- Update the documentation in the same change (see the "Documentation" section below).
 
-## TypeScript Best Practices
+## Domain
 
-- Use strict type checking
+- An order in code is `Order`; the collection, folder, and routes are `orders`.
+- Tags (`Tag`) are created by the user. They replace categories and sources: no separate categories/sources and no hardcoded lists or enums of tags in code.
+- Everything except the user belongs to the user (the `owner` field). Isolation is enforced by PocketBase access rules, not by the frontend.
+- Delivery is ONE Docker container (SSR server + PocketBase). Do not design anything that requires multiple containers.
+
+## Architecture
+
+- Layers inside a feature: `domain/`, `data/`, `ui/`, `testing/`. `domain/` does not import `@angular/*` or `pocketbase`; `ui/` does not import `pocketbase` or `data/`. PocketBase records never leave `data/`.
+- Repositories and services that may get another implementation are described by an abstract class (which doubles as the DI token) and are registered in the feature's `provideXxx()`.
+- A feature imports another feature only through its `index.ts`, with no cycles; feedback goes through extension points (`InjectionToken`).
+- There is no separate store layer; a signal-based store only if several components share the same state.
+- PocketBase errors are translated into domain errors from `shared/`.
+
+## SSR and data isolation
+
+- **Forbidden** to create PocketBase at module level or to keep user data in module variables, static fields, and caches outside DI. `new PocketBase(` only in the factory in `shared/pocketbase/`.
+- Do not touch `window`/`document` without a platform check; use `DOCUMENT`, `isPlatformBrowser`, `afterNextRender`.
+- The browser reaches PocketBase via `/pb/*`; the SSR server goes directly via `PB_URL` and does not proxy the API.
+- Protected files (attachments) are not rendered on the server.
+
+## Project structure
+
+- Code is organized by feature, not by file type: `src/app/<feature>/` (e.g. `src/app/clients/`), not global `components/`, `services/`, `pipes/` folders
+- Everything a feature needs lives inside its folder, including routes and tests
+- One concept per file: one component, directive, pipe, or service per file
+- Files of the same entity sit together with the same base name (`order-list.ts`, `order-list.html`, `order-list.css`, `order-list.spec.ts`)
+- File names in kebab-case. Do NOT add `.component` / `.service` suffixes (like the existing `app.ts`)
+- Each feature has its own routes file (`<feature>.routes.ts`), and the feature is lazy-loaded from `app.routes.ts`
+- Shared infrastructure goes in `src/app/shared/`, only when the code is really needed by two or more features. Do not create a `core/` folder
+
+## TypeScript
+
+- Strict type checking
 - Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
+- Avoid `any`; if the type is unknown, use `unknown`
 
-## Angular Best Practices
+## Angular
 
 - Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Do NOT set `changeDetection: ChangeDetectionStrategy.OnPush` explicitly. `OnPush` is the default in Angular v22+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
+- Do NOT set `standalone: true` in Angular decorators — it is the default in Angular v20+.
+- Do NOT set `changeDetection: ChangeDetectionStrategy.OnPush` explicitly — `OnPush` is the default in Angular v22+.
+- The selector prefix for components and directives is `ksk` (`ksk-order-list`, `kskAutofocus`)
+- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings in the `host` object of the `@Component` or `@Directive` decorator
 - Use `NgOptimizedImage` for all static images.
     - `NgOptimizedImage` does not work for inline base64 images.
 
-## Accessibility Requirements
-
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
-
-## UI / Visual Design
-
-- All visual and frontend work (layout, styling, components' look, colors, typography, responsive behavior) MUST be done using the skills `ui-ux-pro-max` and `frontend-design` (`frontend-design:frontend-design`)
-- Invoke both skills via the Skill tool before building or reshaping any UI
-- Always get feedback from the real browser via the Playwright MCP (`mcp__playwright__*`): use it during UI development and to verify every visual/frontend change (snapshot, screenshot, console messages, responsive sizes via `browser_resize`)
-- Skill recommendations must not violate the Accessibility Requirements and the Angular rules of this file; on conflict, this file wins
-
-## Components
+### Components
 
 - Keep components small and focused on a single responsibility
 - Use `input()` and `output()` functions instead of decorators
-- Use `model()` for two-way bound properties with `[(prop)]` syntax instead of pairing `input()` with `output()`
-- Use `computed()` for derived state
-- Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
-- Prefer inline templates for small components
-- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
-- When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- Do NOT import `CommonModule`, import only the directives and pipes the template uses, such as `AsyncPipe` or `DatePipe`
-- When using external templates/styles, use paths relative to the component TS file.
+- Use `model()` for two-way binding with the `[(prop)]` syntax instead of pairing `input()` with `output()`
+- Prefer inline templates for small components; move large templates and styles to separate files
+- In external templates/styles, use paths relative to the component's TS file.
+- Do NOT import `CommonModule`; import only the directives and pipes the template uses, such as `AsyncPipe` or `DatePipe`
 
-## State Management
+### State
 
-- Use signals for local component state
-- Use `computed()` for derived state
+- Signals for local component state
+- `computed()` for derived state
+- `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
 - Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
+- Do NOT use `mutate` on signals; use `update` or `set`
+- Load data asynchronously in components with `resource()` (SSR waits for it to complete)
 
-## Templates
+### Templates
 
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
+- Keep templates simple, without complex logic
+- Native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
+- Do NOT use `ngClass`, use `class` bindings; do NOT use `ngStyle`, use `style` bindings
+- Use the async pipe for observables
+- Do not assume globals (e.g. `new Date()`) are available in templates.
+- User-provided text is never inserted via `innerHTML`
 
-## Services
+### Forms
 
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
+- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
+- If not Signal Forms, use Reactive forms, not Template-driven ones
+
+### Services
+
+- A service is responsible for a single task
+- `providedIn: 'root'` for singletons
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
 
-## Routing
+### Routing
 
-- All routes are lazy loaded (`loadComponent` / `loadChildren`), including feature-internal ones
-- All routes render as a plain client-side SPA (`RenderMode.Client` in `app.routes.server.ts`). Do NOT use SSR or prerender by default; enable them only for specific routes the user explicitly asks for
+- All routes are lazy-loaded (`loadComponent` / `loadChildren`), including the internal routes of features
+- `RenderMode.Server` in `app.routes.server.ts` only for `''` (home), `orders/:id` (order page), `p/:token` (public page). All other routes are `RenderMode.Client`. New SSR routes only at the user's explicit request
+- Private routes are protected by `authGuard`
 
-## Project Structure
+## UI and accessibility
 
-- Organize code by feature, not by file type: `src/app/<feature>/` (e.g. `src/app/clients/`), not global `components/`, `services/`, `pipes/` folders
-- Keep everything a feature needs inside its folder: components, services, models, routes and tests
-- One concept per file: one component, directive, pipe or service per file
-- Keep the files of one entity together in the same folder with the same base name (`order-list.ts`, `order-list.html`, `order-list.css`, `order-list.spec.ts`)
-- Use kebab-case file names. Do NOT add `.component` / `.service` suffixes (matches the existing `app.ts`)
-- Put unit tests next to the code they test (`*.spec.ts`)
-- Each feature has its own routes file (`<feature>.routes.ts`) and is lazy loaded from `app.routes.ts` via `loadChildren` / `loadComponent`
-- Do NOT create `core/` or `shared/` folders upfront; add shared code only when two or more features actually need it
-- Features must not import from each other's internals; extract the common part to a shared location instead
+- The app MUST pass all AXE checks and meet WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
+- All visual and frontend work (layout, styles, look of components, colors, typography, responsiveness) MUST be done using the skills `ui-ux-pro-max` and `frontend-design` (`frontend-design:frontend-design`). Invoke both skills via the Skill tool before building or reshaping any UI.
+- Always get feedback from a real browser via the Playwright MCP (`mcp__playwright__*`): during UI development and to verify every visual change (snapshot, screenshot, console messages, responsive sizes via `browser_resize`).
+- Skill recommendations must not violate the rules of this file; on conflict, this file wins.
+- Plain CSS without preprocessors or CSS frameworks; colors, spacing, and sizes only via design tokens in `src/styles.css`. Dark theme via `prefers-color-scheme`.
+- Minimal GPU load: animate only `transform` and `opacity`, respect `prefers-reduced-motion`; no `backdrop-filter`, `filter: blur()`, heavy or layered shadows, animated gradients, or permanent `will-change` (details — `docs/architecture.md`, section "Формы и UI").
+- The UI is in Russian only (no i18n framework); dates and amounts use the `ru-RU` locale, the currency is rubles. Mobile-first.
 
-## Git Branches
+## Tests
 
-- Follow GitHub Flow: there is NO separate `develop` branch. `main` is the only long-lived branch
-- Create every working branch directly from the latest `main`: features, fixes and release preparation alike
-- Name branches by purpose in kebab-case: `feat/<short-name>`, `fix/<short-name>`, `release/<version>`
-- Do NOT create branches on your own: the user creates a branch (named as above) when a task is large (a feature, many related changes). Otherwise work in the current branch
-- Small point corrections (config tweaks, adding a dependency, minor fixes) need no separate branch: they go straight to the current branch, usually `main`, as a normal Conventional Commit
-- Do NOT commit on your own: make a commit only when the user explicitly asks for it, because the user reviews changes before every commit. When asked, commit only to the current branch (Conventional Commits)
-- Do NOT merge, rebase onto `main`, push, or delete branches: merging and cleaning up branches is done by the user
-- There are no pull requests: the user works with a local repository only
+- Unit and integration tests live next to the code (`*.spec.ts`, `*.integration.spec.ts`); API and e2e tests live in `tests/`.
+- Tests that need PocketBase use a temporary instance, not `pocketbase/pb_data`.
+- Always verify data isolation with two users.
+- Other rules — `docs/testing.md`.
+
+## Documentation
+
+- When you change or add a part of the app, in the same change update or create its page in `docs/guide/` using the template from `docs/README.md` and add it to the table of contents.
+- If a decision changes the architecture, the data model, or the way of testing, update `docs/architecture.md`, `docs/data-model.md`, or `docs/testing.md`.
+- A new command, environment variable, or startup step — update `README.md`.
+
+## Git
+
+- GitHub Flow: there is NO separate `develop` branch. `main` is the only long-lived branch
+- Every working branch is created directly from a fresh `main`: features, fixes, and release preparation
+- Branches are named by purpose in kebab-case: `feat/<short-name>`, `fix/<short-name>`, `release/<version>`
+- Do NOT create branches yourself: the user creates a branch (by the rules above) when the task is large (a feature, many related changes). Otherwise work in the current branch
+- Small targeted changes (settings, adding a dependency, minor fixes) do not need a separate branch: they go directly to the current branch, usually `main`, as a regular Conventional Commit
+- Do NOT commit yourself: commit only at the user's explicit request, because the user reviews changes before every commit. When asked, commit only to the current branch (Conventional Commits)
+- Do NOT merge, rebase onto `main`, push, or delete branches: merging and branch cleanup are done by the user
+- There are no pull requests: the user works only with the local repository
