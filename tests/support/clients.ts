@@ -1,5 +1,5 @@
 // PocketBase SDK clients for tests; each helper returns its own instance with an in-memory auth store.
-import { randomUUID } from 'node:crypto';
+// Используется и из src/**/*.integration.spec.ts (tsconfig.spec.json), где нет типов Node: поэтому глобальный crypto вместо node:crypto.
 import PocketBase, { BaseAuthStore } from 'pocketbase';
 import { inject } from 'vitest';
 
@@ -21,7 +21,11 @@ export async function asSuperuser(): Promise<PocketBase> {
 }
 
 export async function createUser(overrides: Record<string, unknown> = {}): Promise<TestUser> {
-    const data = { email: `user-${randomUUID()}@test.local`, password: randomUUID(), ...overrides };
+    const data = {
+        email: `user-${crypto.randomUUID()}@test.local`,
+        password: crypto.randomUUID(),
+        ...overrides,
+    };
     const record = await (
         await asSuperuser()
     )

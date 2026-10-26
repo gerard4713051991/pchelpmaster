@@ -1,5 +1,5 @@
 import type { TestProject } from 'vitest/node';
-import { startPocketBase } from '../support/pocketbase-server';
+import { startPocketBase } from './pocketbase-server';
 
 export default async function setup(project: TestProject) {
     const { url, dataDir, superuser, stop } = await startPocketBase();

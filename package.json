@@ -8,6 +8,7 @@
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "test:api": "tsc -p tsconfig.tests.json && vitest run --config vitest.api.config.mts",
+        "test:integration": "ng run pchelpcrm:test-integration",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "serve:ssr:pchelpcrm": "node dist/pchelpcrm/server/server.mjs",

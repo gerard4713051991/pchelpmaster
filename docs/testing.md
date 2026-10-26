@@ -14,7 +14,28 @@
 
 Команды появляются по мере того, как настраиваются соответствующие стенды.
 
-`pnpm test:api` сначала проверяет типы тестового кода (`tsconfig.tests.json`: `tests/**` и `vitest.api.config.mts`), затем запускает Vitest.
+## Стенд API-тестов
+
+`pnpm test:api` = `tsc -p tsconfig.tests.json && vitest run --config vitest.api.config.mts`: чистый Vitest в Node, без Angular.
+
+- Сначала проверяются типы тестового кода (`tsconfig.tests.json`: `tests/**` и `vitest.*.config.mts`): сам Vitest типы не проверяет.
+- `vitest.api.config.mts`: `include: tests/api/**/*.api.spec.ts`, `globalSetup: tests/support/global-setup.ts`, таймауты 20 с (запас на старт PocketBase внутри теста).
+- `global-setup.ts` поднимает один PocketBase на прогон и передаёт тестам `pbUrl`, `pbDataDir`, `pbSuperuser` через `project.provide`; в тестах — `inject('pbUrl')` и т. д. из `vitest`. Типы этих значений — `tests/support/provided-context.d.ts`.
+- Тесты самого стенда — `tests/api/harness.api.spec.ts`. Проверка уборки по `SIGINT`/`SIGTERM` запускает фикстуру `tests/support/fixtures/hold-pocketbase.ts` отдельным процессом `node`: она поднимает PocketBase, печатает `{ url, dataDir }` и ждёт сигнала.
+- Поэтому `pocketbase-server.ts` выполняется чистым Node без сборки: в нём только импорты `node:*` и стираемый TypeScript (без `enum`, `namespace`, параметров-свойств).
+
+## Стенд интеграционных тестов
+
+`pnpm test:integration` = `ng run pchelpcrm:test-integration`: отдельная цель builder'а `@angular/build:unit-test` в `angular.json`.
+
+- `include: ["**/*.integration.spec.ts"]` в цели `test-integration`; у цели `test` (`pnpm test`) — `exclude` тех же файлов, поэтому unit-тесты не требуют PocketBase.
+- `watch: false` в цели: прогон завершается сам; слежение за файлами — разово `pnpm test:integration --watch`.
+- `runnerConfig: "vitest.integration.config.mts"` добавляет `globalSetup: tests/support/global-setup.ts` — тот же файл, что у API-тестов, он вызывает `startPocketBase()`. Список файлов в этом конфиге не задаётся: builder его игнорирует.
+- В тестах работают `TestBed` и `inject()` Angular, URL — `inject('pbUrl')` из `vitest`, хелперы импортируются из `tests/support/clients.ts`.
+
+Почему цель builder'а, а не отдельный `vitest.integration.config.ts` с плагином: спеки собираются тем же компилятором Angular и с той же инициализацией TestBed, что и в `pnpm test`, без своего плагина компиляции и его настройки.
+
+`tests/support/clients.ts` компилируется в двух программах — `tsconfig.tests.json` и `tsconfig.spec.json`. Поэтому в нём нет `node:*` (во второй программе нет типов Node), а `tests/support/provided-context.d.ts` с типами `inject('pbUrl')` перечислен в `include` обоих tsconfig: `references` в `tsconfig.json` программы не объединяют.
 
 ## Контрактные тесты репозиториев
 
@@ -45,7 +66,7 @@ API-, integration- и e2e-тесты работают с **отдельным в
 4. Ожидание готовности по `GET /api/health`.
 5. После прогона процесс останавливается, папка удаляется.
 
-Код запуска один на все уровни: `tests/support/pocketbase-server.ts` (`startPocketBase(): Promise<{ url, dataDir, superuser, stop }>`). В API-тестах URL и суперпользователь доступны через `inject('pbUrl')` и `inject('pbSuperuser')`.
+Код запуска один на все уровни: `tests/support/pocketbase-server.ts` (`startPocketBase(): Promise<{ url, dataDir, superuser, stop }>`).
 
 Стенд убирает за собой процесс и папку после успешного прогона, после падения (в том числе неудачного старта), по `SIGINT`/`SIGTERM` (Ctrl+C) и при выходе процесса. Предел: `SIGKILL` процесса-владельца перехватить нельзя — тогда PocketBase может продолжить работу, а папка `pchelpcrm-pb-*` остаться в temp.
 
