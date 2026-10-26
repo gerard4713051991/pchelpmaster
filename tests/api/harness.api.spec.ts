@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, inject, it, vi } from 'vitest';
@@ -9,6 +10,7 @@ import { type PocketBaseServer, startPocketBase } from '../support/pocketbase-se
 
 const health = (url: string) => fetch(`${url}/api/health`);
 const holdFixture = path.resolve('tests/support/fixtures/hold-pocketbase.ts');
+const migrationsDir = path.resolve('pocketbase/pb_migrations');
 
 describe('стенд API-тестов', () => {
     it('отвечает 200 на GET /api/health', async () => {
@@ -60,13 +62,32 @@ describe('стенд API-тестов', () => {
         expect(pb.authStore.record?.['email']).toBe(user.email);
     });
 
-    it('у каждого хелпера свой экземпляр SDK', async () => {
-        const superuser = await asSuperuser();
+    it('клиенты двух пользователей и гостя не делят авторизацию', async () => {
+        const a = await createUser();
+        const b = await createUser();
+
+        const pbA = await asUser(a);
+        const pbB = await asUser(b);
         const guest = asGuest();
 
-        expect(guest).not.toBe(superuser);
-        expect(guest).not.toBe(asGuest());
+        expect(pbA.authStore.record?.id).toBe(a.id);
+        expect(pbB.authStore.record?.id).toBe(b.id);
         expect(guest.authStore.isValid).toBe(false);
+        expect((await pbA.collection('users').getOne(a.id)).id).toBe(a.id);
+        expect((await pbB.collection('users').getOne(b.id)).id).toBe(b.id);
+    });
+
+    it('изменения коллекций не порождают файлы в pocketbase/pb_migrations', async () => {
+        const before = readdirSync(migrationsDir);
+
+        await (
+            await asSuperuser()
+        ).collections.create({
+            name: `automigrate_probe_${randomUUID().replaceAll('-', '')}`,
+            type: 'base',
+        });
+
+        expect(readdirSync(migrationsDir)).toEqual(before);
     });
 
     it('работает на отдельном временном PocketBase, а не на pocketbase/pb_data', async () => {
@@ -134,7 +155,14 @@ describe('startPocketBase', { timeout: 30_000 }, () => {
                 await expect(health(url)).rejects.toThrow();
                 expect(existsSync(dataDir)).toBe(false);
             } finally {
-                child.kill('SIGKILL');
+                // Если тест упал до сигнала, даём владельцу убрать PocketBase сам; SIGKILL — только по таймауту.
+                if (child.exitCode === null && child.signalCode === null) {
+                    const exited = once(child, 'exit');
+                    child.kill('SIGTERM');
+                    const timer = setTimeout(() => child.kill('SIGKILL'), 5_000);
+                    await exited;
+                    clearTimeout(timer);
+                }
             }
         },
     );

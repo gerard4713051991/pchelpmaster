@@ -106,6 +106,6 @@ PB_URL=http://127.0.0.1:8090 PORT=4000 node dist/pchelpcrm/server/server.mjs
 | `PB_URL`                                      | внутренний адрес PocketBase для SSR-сервера и dev-прокси, по умолчанию `http://127.0.0.1:8090` |
 | `PORT`                                        | порт Node SSR-сервера, по умолчанию `4000`                                                     |
 | `PB_DIR`                                      | папка данных PocketBase для скрипта `pb:superuser`                                             |
-| `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD` | суперпользователь PocketBase (скрипт `pb:superuser` и тесты)                                   |
+| `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD` | суперпользователь PocketBase (скрипт `pb:superuser`)                                           |
 
 Резервная копия — копирование папки `pb_data`. После первого релиза приложение планируется поставлять одним Docker-контейнером (SSR-сервер и PocketBase вместе).

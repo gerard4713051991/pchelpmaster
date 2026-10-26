@@ -3,14 +3,6 @@ import { randomUUID } from 'node:crypto';
 import PocketBase, { BaseAuthStore } from 'pocketbase';
 import { inject } from 'vitest';
 
-declare module 'vitest' {
-    export interface ProvidedContext {
-        pbUrl: string;
-        pbDataDir: string;
-        pbSuperuser: { email: string; password: string };
-    }
-}
-
 export interface TestUser {
     id: string;
     email: string;

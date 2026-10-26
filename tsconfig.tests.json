@@ -1,0 +1,12 @@
+/* Проверка типов стенда API-тестов и вспомогательного кода: запускается из `pnpm test:api`. */
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "strict": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "types": ["node"]
+    },
+    "files": [],
+    "include": ["tests/**/*.ts", "vitest.api.config.mts"]
+}
