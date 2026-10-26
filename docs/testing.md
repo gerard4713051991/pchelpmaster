@@ -4,13 +4,13 @@
 
 ## Уровни тестов
 
-| Уровень | Что проверяет | Где лежит | Команда |
-| --- | --- | --- | --- |
-| **API** (e2e бэкенда) | схема, миграции, правила доступа, изоляция пользователей, хуки PocketBase | `tests/api/**/*.api.spec.ts` | `pnpm test:api` |
-| **Unit** | доменные функции, компоненты и сервисы с фейками вместо PocketBase | рядом с кодом, `src/**/*.spec.ts` | `pnpm test` |
-| **Integration** | PocketBase-реализации репозиториев и сервисов против настоящего PocketBase | рядом с кодом, `src/**/*.integration.spec.ts` | `pnpm test:integration` |
-| **E2E** | пользовательские сценарии в браузере, SSR, доступность (axe) | `tests/e2e/**/*.e2e.ts` | `pnpm e2e` |
-| **E2E prod** | сценарии на production-сборке, включая изоляцию данных при SSR | `tests/e2e/` (проект `ssr-prod`) | `pnpm e2e:prod` |
+| Уровень               | Что проверяет                                                              | Где лежит                                     | Команда                 |
+| --------------------- | -------------------------------------------------------------------------- | --------------------------------------------- | ----------------------- |
+| **API** (e2e бэкенда) | схема, миграции, правила доступа, изоляция пользователей, хуки PocketBase  | `tests/api/**/*.api.spec.ts`                  | `pnpm test:api`         |
+| **Unit**              | доменные функции, компоненты и сервисы с фейками вместо PocketBase         | рядом с кодом, `src/**/*.spec.ts`             | `pnpm test`             |
+| **Integration**       | PocketBase-реализации репозиториев и сервисов против настоящего PocketBase | рядом с кодом, `src/**/*.integration.spec.ts` | `pnpm test:integration` |
+| **E2E**               | пользовательские сценарии в браузере, SSR, доступность (axe)               | `tests/e2e/**/*.e2e.ts`                       | `pnpm e2e`              |
+| **E2E prod**          | сценарии на production-сборке, включая изоляцию данных при SSR             | `tests/e2e/` (проект `ssr-prod`)              | `pnpm e2e:prod`         |
 
 Команды появляются по мере того, как настраиваются соответствующие стенды.
 
@@ -24,7 +24,9 @@ export function describeTagRepositoryContract(
     setup: () => Promise<{ repoA: TagRepository; repoB: TagRepository }>,
 ) {
     describe('контракт TagRepository', () => {
-        it('не показывает пользователю B метки пользователя A', async () => { /* ... */ });
+        it('не показывает пользователю B метки пользователя A', async () => {
+            /* ... */
+        });
     });
 }
 ```
@@ -35,13 +37,15 @@ export function describeTagRepositoryContract(
 
 API-, integration- и e2e-тесты работают с **отдельным временным экземпляром** PocketBase, а не с `pocketbase/pb_data`:
 
-1. Создаётся временная папка данных.
-2. Создаётся суперпользователь (`pocketbase superuser upsert`) с данными из `.env` (`PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`).
-3. Запускается `pocketbase serve` на свободном порту с `--dir <временная папка> --migrationsDir pocketbase/pb_migrations --hooksDir pocketbase/pb_hooks`; миграции применяются при старте.
+1. Создаётся временная папка данных (в системной temp-папке).
+2. Создаётся суперпользователь (`pocketbase superuser upsert`) со сгенерированными email и паролем: инстанс одноразовый, поэтому `.env` тестам не нужен.
+3. Запускается `pocketbase serve` на свободном порту `127.0.0.1` с `--dir <временная папка> --migrationsDir pocketbase/pb_migrations --hooksDir pocketbase/pb_hooks --automigrate=false`; миграции применяются при старте.
 4. Ожидание готовности по `GET /api/health`.
 5. После прогона процесс останавливается, папка удаляется.
 
-Код запуска один на все уровни: `tests/support/pocketbase-server.ts`.
+Код запуска один на все уровни: `tests/support/pocketbase-server.ts` (`startPocketBase(): Promise<{ url, dataDir, superuser, stop }>`). В API-тестах URL и суперпользователь доступны через `inject('pbUrl')` и `inject('pbSuperuser')`.
+
+Стенд убирает за собой процесс и папку после успешного прогона, после падения (в том числе неудачного старта), по `SIGINT`/`SIGTERM` (Ctrl+C) и при выходе процесса. Предел: `SIGKILL` процесса-владельца перехватить нельзя — тогда PocketBase может продолжить работу, а папка `pchelpcrm-pb-*` остаться в temp.
 
 ## Правила написания тестов
 
