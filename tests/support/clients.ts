@@ -1,5 +1,5 @@
 // PocketBase SDK clients for tests; each helper returns its own instance with an in-memory auth store.
-// Используется и из src/**/*.integration.spec.ts (tsconfig.spec.json), где нет типов Node: поэтому глобальный crypto вместо node:crypto.
+// Используется и из src/**/*.integration.spec.ts (tsconfig.spec.json), то есть и в бандле builder'а Angular: поэтому глобальный crypto вместо node:crypto.
 import PocketBase, { BaseAuthStore } from 'pocketbase';
 import { inject } from 'vitest';
 

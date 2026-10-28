@@ -8,5 +8,10 @@
         "types": ["node"]
     },
     "files": [],
-    "include": ["tests/**/*.ts", "vitest.api.config.mts", "vitest.integration.config.mts"]
+    "include": [
+        "tests/**/*.ts",
+        "vitest.api.config.mts",
+        "vitest.integration.config.mts",
+        "vitest.lint.config.mts"
+    ]
 }

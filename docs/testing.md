@@ -35,7 +35,15 @@
 
 Почему цель builder'а, а не отдельный `vitest.integration.config.ts` с плагином: спеки собираются тем же компилятором Angular и с той же инициализацией TestBed, что и в `pnpm test`, без своего плагина компиляции и его настройки.
 
-`tests/support/clients.ts` компилируется в двух программах — `tsconfig.tests.json` и `tsconfig.spec.json`. Поэтому в нём нет `node:*` (во второй программе нет типов Node), а `tests/support/provided-context.d.ts` с типами `inject('pbUrl')` перечислен в `include` обоих tsconfig: `references` в `tsconfig.json` программы не объединяют.
+`tests/support/clients.ts` компилируется в двух программах — `tsconfig.tests.json` и `tsconfig.spec.json`. Типы Node подключены в обеих (спеки выполняются Vitest в Node, а код в `src/` вроде серверного провайдера `PB_URL` читает `process.env`), а `tests/support/provided-context.d.ts` с типами `inject('pbUrl')` перечислен в `include` обоих tsconfig: `references` в `tsconfig.json` программы не объединяют.
+
+## Тесты конфига ESLint
+
+`pnpm test:lint` = `tsc -p tsconfig.tests.json && vitest run --config vitest.lint.config.mts`: чистый Vitest в Node, файлы `tests/lint/**/*.spec.ts`.
+
+- Проверяют, что ESLint держит границы, от которых зависит изоляция данных при SSR: `new PocketBase(` и импорт класса `PocketBase` (в том числе под другим именем и через `pocketbase/*`) только в фабрике `shared/pocketbase/pocketbase-client.ts` (и в тестовых хелперах `tests/`), импорт `pocketbase` и `pocketbase/*` запрещён в `domain/` и `ui/`.
+- Способ: `ESLint#lintText(code, { filePath })` на коротких фрагментах кода, проверяется `ruleId` сообщений. Конфиг ESLint ломается молча (опечатка в glob, слишком широкое исключение), и `pnpm lint` при этом остаётся зелёным; тест это ловит.
+- Запускаются первым шагом в `pnpm test`, `pnpm test:api` и `pnpm test:integration`, чтобы поломка правила обнаружилась при любом прогоне. ESLint — Node-библиотека, в бандл builder'а Angular её не подключить, поэтому это отдельный набор.
 
 ## Контрактные тесты репозиториев
 
