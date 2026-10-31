@@ -18,7 +18,7 @@
 
 `pnpm test:api` = `tsc -p tsconfig.tests.json && vitest run --config vitest.api.config.mts`: чистый Vitest в Node, без Angular.
 
-- Сначала проверяются типы тестового кода (`tsconfig.tests.json`: `tests/**` и `vitest.*.config.mts`): сам Vitest типы не проверяет.
+- Сначала проверяются типы тестового кода (`tsconfig.tests.json`: `tests/**`, `vitest.*.config.mts` и `proxy.conf.mjs`; `allowJs` нужен, чтобы `tests/lint/` импортировали `.mjs`-конфиг): сам Vitest типы не проверяет.
 - `vitest.api.config.mts`: `include: tests/api/**/*.api.spec.ts`, `globalSetup: tests/support/global-setup.ts`, таймауты 20 с (запас на старт PocketBase внутри теста).
 - `global-setup.ts` поднимает один PocketBase на прогон и передаёт тестам `pbUrl`, `pbDataDir`, `pbSuperuser` через `project.provide`; в тестах — `inject('pbUrl')` и т. д. из `vitest`. Типы этих значений — `tests/support/provided-context.d.ts`.
 - Тесты самого стенда — `tests/api/harness.api.spec.ts`. Проверка уборки по `SIGINT`/`SIGTERM` запускает фикстуру `tests/support/fixtures/hold-pocketbase.ts` отдельным процессом `node`: она поднимает PocketBase, печатает `{ url, dataDir }` и ждёт сигнала.
@@ -37,12 +37,13 @@
 
 `tests/support/clients.ts` компилируется в двух программах — `tsconfig.tests.json` и `tsconfig.spec.json`. Типы Node подключены в обеих (спеки выполняются Vitest в Node, а код в `src/` вроде серверного провайдера `PB_URL` читает `process.env`), а `tests/support/provided-context.d.ts` с типами `inject('pbUrl')` перечислен в `include` обоих tsconfig: `references` в `tsconfig.json` программы не объединяют.
 
-## Тесты конфига ESLint
+## Тесты конфигов (ESLint, dev-прокси)
 
 `pnpm test:lint` = `tsc -p tsconfig.tests.json && vitest run --config vitest.lint.config.mts`: чистый Vitest в Node, файлы `tests/lint/**/*.spec.ts`.
 
 - Проверяют, что ESLint держит границы, от которых зависит изоляция данных при SSR: `new PocketBase(` и импорт класса `PocketBase` (в том числе под другим именем и через `pocketbase/*`) только в фабрике `shared/pocketbase/pocketbase-client.ts` (и в тестовых хелперах `tests/`), импорт `pocketbase` и `pocketbase/*` запрещён в `domain/` и `ui/`.
-- Способ: `ESLint#lintText(code, { filePath })` на коротких фрагментах кода, проверяется `ruleId` сообщений. Конфиг ESLint ломается молча (опечатка в glob, слишком широкое исключение), и `pnpm lint` при этом остаётся зелёным; тест это ловит.
+- `tests/lint/pb-dev-proxy.spec.ts` проверяет `proxy.conf.mjs` (dev-прокси `ng serve`): правило `/pb/`, `target` из `PB_URL` с тем же значением по умолчанию, что у серверного провайдера (в том числе при пустой переменной), и срезание префикса `/pb`.
+- Способ ESLint-тестов: `ESLint#lintText(code, { filePath })` на коротких фрагментах кода, проверяется `ruleId` сообщений. Конфиг ESLint ломается молча (опечатка в glob, слишком широкое исключение), и `pnpm lint` при этом остаётся зелёным; тест это ловит.
 - Запускаются первым шагом в `pnpm test`, `pnpm test:api` и `pnpm test:integration`, чтобы поломка правила обнаружилась при любом прогоне. ESLint — Node-библиотека, в бандл builder'а Angular её не подключить, поэтому это отдельный набор.
 
 ## Контрактные тесты репозиториев

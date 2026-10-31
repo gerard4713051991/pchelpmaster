@@ -174,7 +174,7 @@ PocketBase SDK использует `fetch`, а не `HttpClient`, поэтом�
 - **Сервер:** `PB_URL` — переменная окружения Node-сервера, внутренний адрес PocketBase для серверного рендера (по умолчанию `http://127.0.0.1:8090`). В браузер не передаётся.
 - **Браузер:** `<window.location.origin>/pb`. Префикс `/pb` — константа `PB_PUBLIC_PATH` в `shared/pocketbase/`; если путь в nginx поменяется, меняется только она.
 - Всё это задаётся в одном месте: `shared/pocketbase/`. Клиент `POCKETBASE` создаётся одной и той же фабрикой и в браузере, и на сервере (`providePocketBase()` в `app.config.ts`); различается только токен `PB_URL`: `providePocketBase()` даёт браузерное значение по умолчанию, а `providePbUrlForServer()` в `app.config.server.ts` подменяет его серверным.
-- **Разработка:** `ng serve` проксирует `/pb/*` → `PB_URL` со срезанием префикса (`proxy.conf.mjs`). E2E-тесты production-сборки используют маленький тестовый фронт-прокси, повторяющий правила nginx.
+- **Разработка:** `ng serve` проксирует `/pb/*` → `PB_URL` со срезанием префикса (`proxy.conf.mjs`; ключ `/pb/` как у `location /pb/` в nginx, формат — Vite `server.proxy`: `target`, `changeOrigin`, `rewrite`). E2E-тесты production-сборки используют маленький тестовый фронт-прокси, повторяющий правила nginx.
 
 ### Ожидаемая конфигурация nginx (пример, деплой — вне MVP)
 

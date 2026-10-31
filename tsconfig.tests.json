@@ -5,6 +5,7 @@
         "strict": true,
         "noEmit": true,
         "allowImportingTsExtensions": true,
+        "allowJs": true,
         "types": ["node"]
     },
     "files": [],
@@ -12,6 +13,7 @@
         "tests/**/*.ts",
         "vitest.api.config.mts",
         "vitest.integration.config.mts",
-        "vitest.lint.config.mts"
+        "vitest.lint.config.mts",
+        "proxy.conf.mjs"
     ]
 }
