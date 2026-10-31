@@ -47,22 +47,22 @@ pnpm start              # приложение на http://localhost:4200/
 
 ## Команды
 
-| Команда                 | Что делает                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------- |
-| `pnpm start`            | dev-сервер приложения                                                                 |
-| `pnpm build`            | production-сборка в `dist/`                                                           |
-| `pnpm lint`             | ESLint                                                                                |
-| `pnpm test`             | unit-тесты                                                                            |
-| `pnpm test:api`         | API-тесты PocketBase: схема, правила доступа, изоляция пользователей                  |
-| `pnpm test:integration` | репозитории приложения против тестового PocketBase                                    |
-| `pnpm test:lint`        | тесты конфигов ESLint и dev-прокси; первый шаг `test`, `test:api`, `test:integration` |
-| `pnpm e2e`              | сценарии в браузере и проверка доступности (axe)                                      |
-| `pnpm e2e:prod`         | сценарии на production-сборке                                                         |
-| `pnpm pb:serve`         | PocketBase для разработки                                                             |
-| `pnpm pb:migrate`       | применить миграции                                                                    |
-| `pnpm pb:superuser`     | создать суперпользователя или сбросить его пароль                                     |
+| Команда                 | Что делает                                                                                               |
+| ----------------------- | -------------------------------------------------------------------------------------------------------- |
+| `pnpm start`            | dev-сервер приложения                                                                                    |
+| `pnpm build`            | production-сборка в `dist/`                                                                              |
+| `pnpm lint`             | ESLint                                                                                                   |
+| `pnpm test`             | unit-тесты                                                                                               |
+| `pnpm test:api`         | API-тесты PocketBase: схема, правила доступа, изоляция пользователей                                     |
+| `pnpm test:integration` | репозитории приложения против тестового PocketBase                                                       |
+| `pnpm test:lint`        | тесты конфигов ESLint, dev-прокси и Playwright; первый шаг `test`, `test:api`, `test:integration`, `e2e` |
+| `pnpm e2e`              | сценарии в браузере и проверка доступности (axe)                                                         |
+| `pnpm e2e:prod`         | сценарии на production-сборке                                                                            |
+| `pnpm pb:serve`         | PocketBase для разработки                                                                                |
+| `pnpm pb:migrate`       | применить миграции                                                                                       |
+| `pnpm pb:superuser`     | создать суперпользователя или сбросить его пароль                                                        |
 
-Тесты, которым нужен PocketBase, сами поднимают временный экземпляр и не трогают `pocketbase/pb_data`. Перед первым запуском e2e установите браузер: `pnpm exec playwright install chromium`.
+Тесты, которым нужен PocketBase, сами поднимают временный экземпляр и не трогают `pocketbase/pb_data`. Перед первым запуском e2e установите браузер: `pnpm exec playwright install chromium`. Стенд e2e использует свои порты (PocketBase — 8190, приложение — 4300), поэтому не мешает `pnpm pb:serve` и `pnpm start`.
 
 ## Структура репозитория
 

@@ -25,7 +25,7 @@ export interface PocketBaseServer {
 }
 
 /**
- * Запускает одноразовый PocketBase на свободном порту и ждёт, пока он ответит на `/api/health`.
+ * Запускает одноразовый PocketBase на свободном порту (или на `port`, если он задан) и ждёт, пока он ответит на `/api/health`.
  *
  * Процесс и каталог данных удаляются при `stop()`, по `SIGINT`/`SIGTERM`, при выходе
  * и при ошибке запуска.
@@ -33,7 +33,7 @@ export interface PocketBaseServer {
  * @throws Если `pocketbase` нет в PATH, не создался суперпользователь или сервер не ответил
  * за {@link START_TIMEOUT_MS}. В сообщение ошибки включён вывод PocketBase.
  */
-export async function startPocketBase(): Promise<PocketBaseServer> {
+export async function startPocketBase({ port }: { port?: number } = {}): Promise<PocketBaseServer> {
     const superuser = { email: `superuser-${randomUUID()}@test.local`, password: randomUUID() };
     const dataDir = await mkdtemp(join(tmpdir(), 'pchelpcrm-pb-'));
     let child: ChildProcess | undefined;
@@ -79,7 +79,7 @@ export async function startPocketBase(): Promise<PocketBaseServer> {
             throw new Error(`pocketbase superuser upsert failed:\n${error.stdout}${error.stderr}`);
         });
 
-        const url = `http://127.0.0.1:${await freePort()}`;
+        const url = `http://127.0.0.1:${port ?? (await freePort())}`;
         let output = '';
         let spawnError: Error | undefined;
         const proc = spawn('pocketbase', [
