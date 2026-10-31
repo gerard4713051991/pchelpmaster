@@ -117,7 +117,7 @@ Read:
 ## UI and accessibility
 
 - The app MUST pass all AXE checks and meet WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
-- All visual and frontend work (layout, styles, look of components, colors, typography, responsiveness) MUST be done using the skills `ui-ux-pro-max` and `frontend-design` (`frontend-design:frontend-design`). Invoke both skills via the Skill tool before building or reshaping any UI.
+- All visual and frontend work (layout, styles, look of components, colors, typography, responsiveness) MUST be done using the skills `ui-ux-pro-max` and `frontend-design`. Invoke both skills via the Skill tool before building or reshaping any UI.
 - Always get feedback from a real browser via the Playwright MCP (`mcp__playwright__*`): during UI development and to verify every visual change (snapshot, screenshot, console messages, responsive sizes via `browser_resize`).
 - Skill recommendations must not violate the rules of this file; on conflict, this file wins.
 - Plain CSS without preprocessors or CSS frameworks; colors, spacing, and sizes only via design tokens in `src/styles.css`. Dark theme via `prefers-color-scheme`.
