@@ -48,6 +48,9 @@ __screenshots__/
 /pocketbase/pb_data
 .env
 
+# Personal notes
+/NOTES.md
+
 # System files
 .DS_Store
 Thumbs.db
