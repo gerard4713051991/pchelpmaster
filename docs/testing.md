@@ -76,6 +76,8 @@ export function describeTagRepositoryContract(
 
 и вызывается дважды: в `in-memory-tag-repository.spec.ts` (быстро, в `pnpm test`) и в `pocketbase-tag-repository.integration.spec.ts` (на тестовом PocketBase, в `pnpm test:integration`).
 
+Так же устроен контракт сервиса `AuthService`: `auth/testing/auth-service.contract.ts`. Файл контракта не `*.spec.ts`, поэтому `describe`/`it`/`expect` импортируются из `vitest` явно.
+
 ## Тестовый PocketBase
 
 API-, integration- и e2e-тесты работают с **отдельным временным экземпляром** PocketBase, а не с `pocketbase/pb_data`:
