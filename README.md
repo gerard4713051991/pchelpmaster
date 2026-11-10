@@ -54,7 +54,7 @@ pnpm start              # приложение на http://localhost:4200/
 | `pnpm lint`             | ESLint                                                                                                   |
 | `pnpm test`             | unit-тесты                                                                                               |
 | `pnpm test:api`         | API-тесты PocketBase: схема, правила доступа, изоляция пользователей                                     |
-| `pnpm test:integration` | репозитории приложения против тестового PocketBase                                                       |
+| `pnpm test:integration` | репозитории приложения на тестовом PocketBase                                                            |
 | `pnpm test:lint`        | тесты конфигов ESLint, dev-прокси и Playwright; первый шаг `test`, `test:api`, `test:integration`, `e2e` |
 | `pnpm e2e`              | сценарии в браузере и проверка доступности (axe)                                                         |
 | `pnpm e2e:prod`         | сценарии на production-сборке                                                                            |
@@ -88,7 +88,7 @@ docs/               документация разработчика
 
 - [architecture.md](docs/architecture.md) — общая схема, слои, DI, SSR и изоляция данных, nginx, принципы UI;
 - [data-model.md](docs/data-model.md) — коллекции PocketBase, поля и правила доступа;
-- [testing.md](docs/testing.md) — уровни тестов и тестовый PocketBase;
+- [testing.md](docs/testing.md) — уровни тестов и тестовый PocketBase; устройство стендов — в [docs/guide/tests/](docs/guide/tests/);
 - `docs/guide/` — руководство по каждой части приложения: где лежит код, как им пользоваться и как его расширить. Пополняется вместе с кодом.
 
 ## Production

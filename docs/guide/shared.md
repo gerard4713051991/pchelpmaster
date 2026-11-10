@@ -46,8 +46,8 @@ async list(): Promise<Tag[]> {
 ## Тесты
 
 - `to-domain-error.spec.ts`, `pocketbase-client.spec.ts` — unit.
-- `pocketbase-client.integration.spec.ts` — клиент из DI против тестового PocketBase, изоляция двух пользователей и гостя.
-- `tests/lint/eslint-rules.spec.ts` — границы ESLint, см. [testing.md](../testing.md).
+- `pocketbase-client.integration.spec.ts` — клиент из DI на тестовом PocketBase, изоляция двух пользователей и гостя.
+- `tests/lint/eslint-rules.spec.ts` — границы ESLint, см. [config-tests.md](tests/config-tests.md).
 
 ## Подводные камни
 
