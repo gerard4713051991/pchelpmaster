@@ -1,9 +1,8 @@
 // Проверяет правило `/pb/` в proxy.conf.mjs: оно должно повторять `location /pb/` из nginx и серверный `PB_URL`.
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { ProxyRules } from '../../proxy.conf.mjs';
 
-type Rules = typeof import('../../proxy.conf.mjs').default;
-
-async function loadRules(pbUrl: string | undefined): Promise<Rules> {
+async function loadRules(pbUrl: string | undefined): Promise<ProxyRules> {
     vi.stubEnv('PB_URL', pbUrl);
     vi.resetModules();
     return (await import('../../proxy.conf.mjs')).default;
